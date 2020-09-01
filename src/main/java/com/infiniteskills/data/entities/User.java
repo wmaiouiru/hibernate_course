@@ -4,10 +4,13 @@ import org.hibernate.annotations.Formula;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
+import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -18,6 +21,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
@@ -38,6 +42,9 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="USER_ID")
     private Long userId;
+
+    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "users")
+    private Set<Account> accounts = new HashSet<Account>();
 
     @Column(name="FIRST_NAME", updatable = true)
     private String firstName;
@@ -78,6 +85,12 @@ public class User {
     })
     private Address address;
     */
+    @ElementCollection
+    @CollectionTable(name = "USER_ADDRESS", joinColumns = @JoinColumn(name = "USER_ID"))
+    @AttributeOverrides({
+            @AttributeOverride(name = "addressLine1", column = @Column(name = "USER_ADDRESS_LINE_1")),
+            @AttributeOverride(name = "addressLine2", column = @Column(name = "USER_ADDRESS_LINE_2")) })
+    private List<Address> addresses = new ArrayList<Address>();
 
     // Inverse asscoiation
     @OneToOne(mappedBy = "user")
@@ -195,5 +208,21 @@ public class User {
 
     public void setCredential(Credential credential) {
         this.credential = credential;
+    }
+
+    public List<Address> getAddresses() {
+        return addresses;
+    }
+
+    public void setAddresses(List<Address> addresses) {
+        this.addresses = addresses;
+    }
+
+    public Set<Account> getAccounts() {
+        return accounts;
+    }
+
+    public void setAccounts(Set<Account> accounts) {
+        this.accounts = accounts;
     }
 }
